@@ -1,7 +1,5 @@
 package com.reyworkspace.pbl_project;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,7 +7,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.JsonObject;
 import com.reyworkspace.pbl_project.Retrofit.RetrofitBuilder;
@@ -29,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     public Spinner sp;
     public Spinner sp1;
 
+    AlertDialog.Builder builder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
         sp1=findViewById(R.id.sp1);
 
         List<String> l=new ArrayList<>();
-        l.add(0,"");
-        l.add(1,"INR");
+        l.add(0,"INR");
+        l.add(1,"MYR");
         l.add(2,"USD");
         l.add(3,"EUR");
         l.add(4,"CAD");
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         l.add(28,"MXN");
         l.add(29,"ILS");
         l.add(30,"KRW");
-        l.add(31,"MYR");
+
 
 
 
@@ -81,30 +84,38 @@ public class MainActivity extends AppCompatActivity {
         sp.setAdapter(a);
         sp1.setAdapter(a);
 
+if(sp!=null&&sp1!=null){
 
-        convert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RetrofitInterface retrofitInterface = RetrofitBuilder.getRetrofitInsatnce().create(RetrofitInterface.class);
-                Call<JsonObject> call=retrofitInterface.getExchangeCurrency(sp.getSelectedItem().toString());
-                call.enqueue(new Callback<JsonObject>() {
-                    @Override
-                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                        JsonObject res= response.body();
-                        JsonObject rates = res.getAsJsonObject("rates");
-                        double currency= Double.parseDouble(precurren.getText().toString());
-                        double multi = Double.parseDouble(rates.get(sp1.getSelectedItem().toString()).toString());
-                        double result = currency * multi;
-                        second_value.setText(String.valueOf(result));
-                    }
+    convert.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            RetrofitInterface retrofitInterface = RetrofitBuilder.getRetrofitInsatnce().create(RetrofitInterface.class);
+            Call<JsonObject> call=retrofitInterface.getExchangeCurrency(sp.getSelectedItem().toString());
+            call.enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    JsonObject res= response.body();
+                    JsonObject rates = res.getAsJsonObject("rates");
+                    double currency= Double.parseDouble(precurren.getText().toString());
+                    double multi = Double.parseDouble(rates.get(sp1.getSelectedItem().toString()).toString());
+                    double result = currency * multi;
+                    second_value.setText(String.valueOf(result));
+                }
 
-                    @Override
-                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
 
-                    }
-                });
-            }
-        });
+                }
+            });
+        }
+    });
+
+}else {
+
+    Toast.makeText(getApplicationContext(),"Select Currency",Toast.LENGTH_SHORT).show();
+
+}
+
 
     }
 

@@ -2,4 +2,7 @@
     <string name="app_name">Currency Converter</string>
     <string name="Value">ENTER VALUE</string>
 
+    <string name="dialog_message">Select Currency</string>
+    <string name="dialog_title">Alert</string>
+
 </resources>
