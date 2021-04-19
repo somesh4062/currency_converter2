@@ -29,7 +29,7 @@ public class networkActivity extends AppCompatActivity {
         }
     }
     public boolean isConnected(){
-        boolean connected=false;
+        boolean connected = false;
         try{
             ConnectivityManager cm=(ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo =cm.getActiveNetworkInfo();
