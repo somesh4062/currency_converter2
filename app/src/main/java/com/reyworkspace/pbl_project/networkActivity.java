@@ -25,7 +25,7 @@ public class networkActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
         }else {
-            Toast.makeText(getApplicationContext(), "Check Your Connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Check Your Internet Connection!", Toast.LENGTH_SHORT).show();
         }
     }
     public boolean isConnected(){
