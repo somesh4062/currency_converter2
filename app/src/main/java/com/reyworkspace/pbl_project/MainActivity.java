@@ -1,7 +1,12 @@
 package com.reyworkspace.pbl_project;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -9,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.JsonObject;
@@ -29,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     public EditText second_value;
     public Spinner sp;
     public Spinner sp1;
-
-    AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,43 +81,48 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        ArrayAdapter a =new ArrayAdapter(this,android.R.layout.simple_spinner_item,l);
+        ArrayAdapter<String> a =new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,l);
         a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sp.setAdapter(a);
         sp1.setAdapter(a);
 
-if(sp!=null&&sp1!=null){
 
-    convert.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            RetrofitInterface retrofitInterface = RetrofitBuilder.getRetrofitInsatnce().create(RetrofitInterface.class);
-            Call<JsonObject> call=retrofitInterface.getExchangeCurrency(sp.getSelectedItem().toString());
-            call.enqueue(new Callback<JsonObject>() {
-                @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                    JsonObject res= response.body();
-                    JsonObject rates = res.getAsJsonObject("rates");
-                    double currency= Double.parseDouble(precurren.getText().toString());
-                    double multi = Double.parseDouble(rates.get(sp1.getSelectedItem().toString()).toString());
-                    double result = currency * multi;
-                    second_value.setText(String.valueOf(result));
-                }
+    convert.setOnClickListener(v -> {
 
-                @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+        if(isConnected()){
+            if(TextUtils.isEmpty(precurren.getText().toString())){
+                precurren.setError("Invalid Input");
+                Toast.makeText(getApplicationContext(),"Enter Value",Toast.LENGTH_SHORT).show();
 
-                }
-            });
+            }else {
+                RetrofitInterface retrofitInterface = RetrofitBuilder.getRetrofitInsatnce().create(RetrofitInterface.class);
+                Call<JsonObject> call=retrofitInterface.getExchangeCurrency(sp.getSelectedItem().toString());
+                call.enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        JsonObject res= response.body();
+                        JsonObject rates = res.getAsJsonObject("rates");
+                        double currency= Double.parseDouble(precurren.getText().toString());
+                        double multi = Double.parseDouble(rates.get(sp1.getSelectedItem().toString()).toString());
+                        double result = currency * multi;
+                        second_value.setText(String.valueOf(result));
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+
+                    }
+                });
+            }
+        }else {
+            Intent intent= new Intent(getApplicationContext(),networkActivity.class);
+            startActivity(intent);
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
         }
+
+
+
     });
-
-}else {
-
-    Toast.makeText(getApplicationContext(),"Select Currency",Toast.LENGTH_SHORT).show();
-
-}
-
 
     }
 
@@ -126,8 +133,24 @@ if(sp!=null&&sp1!=null){
         startActivity(intent);
     }
 
+
     public void reset(View view) {
         precurren.setText("");
         second_value.setText("");
+    }
+
+
+    public boolean isConnected(){
+        boolean connected=false;
+        try{
+            ConnectivityManager cm=(ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo =cm.getActiveNetworkInfo();
+            connected = networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+            return connected;
+        }catch (Exception e){
+            Log.e("Connectivity Error",e.getMessage());
+        }
+
+        return connected;
     }
 }
