@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +24,8 @@ public class networkActivity extends AppCompatActivity {
         if(isConnected()) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
+        }else {
+            Toast.makeText(getApplicationContext(), "Check Your Connection", Toast.LENGTH_SHORT).show();
         }
     }
     public boolean isConnected(){
